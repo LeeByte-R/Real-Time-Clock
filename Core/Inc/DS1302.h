@@ -13,32 +13,32 @@
 #define DS1302_SCLK_1 HAL_GPIO_WritePin(SCLK_GPIO_Port, SCLK_Pin, GPIO_PIN_SET)
 
 //register address read-mode LSB=1 0x80->0x81 write-mode LSB=0 0x80
-#define DS1302_SECOND	0x80
-#define DS1302_MINUTE	0x82
-#define DS1302_HOUR		0x84 
-#define DS1302_DAY		0x86
-#define DS1302_MONTH	0x88
-#define DS1302_WEEK		0x8a
-#define DS1302_YEAR		0x8c 
+#define DS1302_SECOND  0x80
+#define DS1302_MINUTE  0x82
+#define DS1302_HOUR    0x84 
+#define DS1302_DAY    0x86
+#define DS1302_MONTH  0x88
+#define DS1302_WEEK    0x8a
+#define DS1302_YEAR    0x8c 
 
 typedef struct{
-	int year;
-	int month;
-	int day;
-	int hour;
-	int minute;
-	int second;
-	char week[10];
+  int year;
+  int month;
+  int day;
+  int hour;
+  int minute;
+  int second;
+  char week[10];
 } Time;
 
 typedef enum{
-	SUNDAY = 1, //DS1302 week start from 1 Sunday
-	MONDAY,
-	TUESDAY,
-	WEDNESDAY,
-	THURSDAY,
-	FRIDAY,
-	SATURDAY
+  SUNDAY = 1, //DS1302 week start from 1 Sunday
+  MONDAY,
+  TUESDAY,
+  WEDNESDAY,
+  THURSDAY,
+  FRIDAY,
+  SATURDAY
 } Week;
 
 uint8_t DS1302_Read(uint8_t addr);

@@ -64,7 +64,7 @@ static void MX_USART2_UART_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_I2C2_Init(void);
 /* USER CODE BEGIN PFP */
-
+void Delay_Us(uint16_t wait);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -105,17 +105,17 @@ int main(void)
   MX_TIM7_Init();
   MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
-	Time now;
-	int previous_s=0;
-	uint8_t msg[50];
-	uint8_t receive[RECEIVE_SIZE];
-	char delimiter[2] = {'-', '\0'};
-	char *token;
-	
-	LCD1602I2C_Init();
-	LCD1602I2C_Clear();
-	DS1302_Init();
-	HAL_UART_Receive_DMA(&huart2, receive, RECEIVE_SIZE);
+  Time now;
+  int previous_s=0;
+  uint8_t msg[50];
+  uint8_t receive[RECEIVE_SIZE];
+  char delimiter[2] = {'-', '\0'};
+  char *token;
+  
+  LCD1602I2C_Init();
+  LCD1602I2C_Clear();
+  DS1302_Init();
+  HAL_UART_Receive_DMA(&huart2, receive, RECEIVE_SIZE);
 
   /* USER CODE END 2 */
 
@@ -123,53 +123,53 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		if(arrive_flag){
-			//sprintf((char*)msg, "%s\r\n", receive);
-			//HAL_UART_Transmit(&huart2, msg, sizeof(msg), HAL_MAX_DELAY);
-			
-			//receive message = year-month-day-week-hour-minute-second
-			//correct now time
-			token = strtok((char*)receive, delimiter);
-			DS1302_SetTime(DS1302_YEAR, atoi(token)-2000); //year from 2000
+    if(arrive_flag){
+      //sprintf((char*)msg, "%s\r\n", receive);
+      //HAL_UART_Transmit(&huart2, msg, sizeof(msg), HAL_MAX_DELAY);
+      
+      //receive message = year-month-day-week-hour-minute-second
+      //correct now time
+      token = strtok((char*)receive, delimiter);
+      DS1302_SetTime(DS1302_YEAR, atoi(token)-2000); //year from 2000
 
-			token = strtok(NULL, delimiter);
-			DS1302_SetTime(DS1302_MONTH, atoi(token));
-			
-			token = strtok(NULL, delimiter);
-			DS1302_SetTime(DS1302_DAY, atoi(token));
-			
-			token = strtok(NULL, delimiter);
-			DS1302_SetTime(DS1302_WEEK, (atoi(token)%7)+1); //1=Sunday 2=Monday
-			
-			token = strtok(NULL, delimiter);
-			DS1302_SetTime(DS1302_HOUR, atoi(token)&(~0x80)); //low MSB bit to select 24-hour mode
-			
-			token = strtok(NULL, delimiter);
-			DS1302_SetTime(DS1302_MINUTE, atoi(token));
-			
-			token = strtok(NULL, delimiter);
-			DS1302_SetTime(DS1302_SECOND, atoi(token)&(~0x80)); //high CH to open oscillator
-			
-			arrive_flag = 0;
-			HAL_UART_Receive_DMA(&huart2, receive, RECEIVE_SIZE);
-		}
-		DS1302_Burst_GetTime(&now);
-		if(now.second != previous_s){
-			/*
-			sprintf((char*)msg, "20%d/%02d/%02d %s %02d:%02d:%02d\r\n", 
-							now.year, now.month, now.day, now.week, now.hour, now.minute, now.second);
-			HAL_UART_Transmit(&huart2, msg, sizeof(msg), HAL_MAX_DELAY);
-			*/
-			LCD1602I2C_Cursor(0, 0);
-			sprintf((char*)msg, "20%d/%02d/%02d%6s", now.year, now.month, now.day, now.week);
-			LCD1602I2C_SendString((char*)msg);
-			
-			LCD1602I2C_Cursor(1, 0);
-			sprintf((char*)msg, "%02d:%02d:%02d", now.hour, now.minute, now.second);
-			LCD1602I2C_SendString((char*)msg);
+      token = strtok(NULL, delimiter);
+      DS1302_SetTime(DS1302_MONTH, atoi(token));
+      
+      token = strtok(NULL, delimiter);
+      DS1302_SetTime(DS1302_DAY, atoi(token));
+      
+      token = strtok(NULL, delimiter);
+      DS1302_SetTime(DS1302_WEEK, (atoi(token)%7)+1); //1=Sunday 2=Monday
+      
+      token = strtok(NULL, delimiter);
+      DS1302_SetTime(DS1302_HOUR, atoi(token)&(~0x80)); //low MSB bit to select 24-hour mode
+      
+      token = strtok(NULL, delimiter);
+      DS1302_SetTime(DS1302_MINUTE, atoi(token));
+      
+      token = strtok(NULL, delimiter);
+      DS1302_SetTime(DS1302_SECOND, atoi(token)&(~0x80)); //high CH to open oscillator
+      
+      arrive_flag = 0;
+      HAL_UART_Receive_DMA(&huart2, receive, RECEIVE_SIZE);
+    }
+    DS1302_Burst_GetTime(&now);
+    if(now.second != previous_s){
+      /*
+      sprintf((char*)msg, "20%d/%02d/%02d %s %02d:%02d:%02d\r\n", 
+              now.year, now.month, now.day, now.week, now.hour, now.minute, now.second);
+      HAL_UART_Transmit(&huart2, msg, sizeof(msg), HAL_MAX_DELAY);
+      */
+      LCD1602I2C_Cursor(0, 0);
+      sprintf((char*)msg, "20%d/%02d/%02d%6s", now.year, now.month, now.day, now.week);
+      LCD1602I2C_SendString((char*)msg);
+      
+      LCD1602I2C_Cursor(1, 0);
+      sprintf((char*)msg, "%02d:%02d:%02d", now.hour, now.minute, now.second);
+      LCD1602I2C_SendString((char*)msg);
 
-			previous_s = now.second;
-		}
+      previous_s = now.second;
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -416,14 +416,14 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void Delay_Us(uint16_t wait){
-	HAL_TIM_Base_Start(&htim7);
-	__HAL_TIM_SET_COUNTER(&htim7,0);  // set the counter value a 0
-	while(__HAL_TIM_GET_COUNTER(&htim7) < wait);
-	HAL_TIM_Base_Stop(&htim7);
+  HAL_TIM_Base_Start(&htim7);
+  __HAL_TIM_SET_COUNTER(&htim7,0);  // set the counter value a 0
+  while(__HAL_TIM_GET_COUNTER(&htim7) < wait);
+  HAL_TIM_Base_Stop(&htim7);
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	arrive_flag = 1; //correct time message is arrived
+  arrive_flag = 1; //correct time message is arrived
 }
 /* USER CODE END 4 */
 
